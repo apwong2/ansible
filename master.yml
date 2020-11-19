@@ -1,0 +1,46 @@
+- hosts: node1
+  tasks:      
+       - name: Creating Directory
+         file:
+           path: /apps/nginx
+           state: directory
+
+       - name: Copy Dockerfile
+         copy:
+            src: Dockerfile
+            dest: /apps/nginx/Dockerfile
+
+       - name: Copy Proxy conf file
+         copy:
+            src: proxy.conf
+            dest: /apps/nginx/proxy.conf
+
+       - name: Copy virtual host conf file
+         copy:
+            src: alexander.conf
+            dest: /apps/nginx/alexander.conf
+
+       - name: Copy virtual host content
+         copy:
+            src: index.html
+            dest: /apps/nginx/index.html
+
+       - name: Building image from Dockerfile
+         docker_image:
+            name: imagen
+            build:
+               path: /apps/nginx
+            source: build
+        
+       - name: Creating the container
+         docker_container:
+            name: contenedor
+            image: imagen:latest
+            published_ports: 0.0.0.0:3200:3200
+            detach:  yes
+            state: present
+
+       - name: Creating the container
+         docker_container:
+            name: contenedor
+            state: started
